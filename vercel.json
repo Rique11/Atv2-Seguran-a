@@ -1,0 +1,35 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "servidor": {
+      "root": "servidor/",
+      "entrypoint": "main:app",
+      "framework": "fastapi"
+    },
+    "cliente": {
+      "root": "cliente/",
+      "entrypoint": "main:app",
+      "framework": "fastapi"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/ws",
+      "destination": {
+        "service": "servidor"
+      }
+    },
+    {
+      "source": "/status-servidor",
+      "destination": {
+        "service": "servidor"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "cliente"
+      }
+    }
+  ]
+}
