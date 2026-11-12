@@ -4,7 +4,7 @@ import json
 from contextlib import asynccontextmanager
 import os
 from fastapi import FastAPI
-from flask.cli import load_dotenv
+from dotenv import load_dotenv
 from websockets.asyncio.client import connect
 
 load_dotenv()
