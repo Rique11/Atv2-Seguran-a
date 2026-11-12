@@ -6,15 +6,27 @@ import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from websockets.asyncio.client import connect
+from AES_Python import AES
 
 load_dotenv()
 WEBSOCKET_URL = os.getenv("WEBSOCKET_URL")
-
+AES_KEY = os.getenv("AES_KEY")
 logs = []
 
 if not WEBSOCKET_URL:
     logs.append("WEBSOCKET_URL não definida no .env")
     raise ValueError("WEBSOCKET_URL não definida no .env")
+if not AES_KEY:
+    logs.append("AES_KEY não definida no .env")
+    raise ValueError("AES_KEY não definida no .env")
+
+async def criptografa(mensagem):
+    aes = AES(key=AES_KEY)
+    return aes.enc(data_string=mensagem)
+
+async def descriptografa(mensagem):
+    aes = AES(key=AES_KEY)
+    return aes.dec(data_string=mensagem)
 
 async def comunicar():
     while True:
@@ -23,11 +35,12 @@ async def comunicar():
                 print("Conectado ao servidor B!")
                 logs.append("Conectado ao servidor B!")
                 while True:
+                    mensagem_criptografada = await criptografa("Olá do cliente A!")
                     await ws.send(json.dumps({
                         "origem": "A",
-                        "mensagem": "Olá do cliente A!"
+                        "mensagem": mensagem_criptografada  
                     }))
-
+                    print("Mensagem enviada para B: \n" +  mensagem_criptografada)
                     resposta = await ws.recv()
                     print("Resposta de B:", json.loads(resposta))
                     logs.append(f"Resposta de B: {json.loads(resposta)}")
