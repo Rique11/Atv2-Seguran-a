@@ -26,6 +26,12 @@
       }
     },
     {
+      "source": "/mensagens-recebidas",
+      "destination": {
+        "service": "servidor"
+      }
+    },
+    {
       "source": "/(.*)",
       "destination": {
         "service": "cliente"

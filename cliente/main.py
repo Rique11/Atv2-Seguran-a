@@ -1,69 +1,65 @@
 
 import asyncio
 import json
-from contextlib import asynccontextmanager
 import os
-from fastapi import FastAPI
+
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
 from websockets.asyncio.client import connect
+
 
 load_dotenv()
 WEBSOCKET_URL = os.getenv("WEBSOCKET_URL")
 
-logs = []
-
-if not WEBSOCKET_URL:
-    logs.append("WEBSOCKET_URL não definida no .env")
-    raise ValueError("WEBSOCKET_URL não definida no .env")
-
-async def comunicar():
-    while True:
-        try:
-            async with connect(WEBSOCKET_URL) as ws:
-                print("Conectado ao servidor B!")
-                logs.append("Conectado ao servidor B!")
-                while True:
-                    await ws.send(json.dumps({
-                        "origem": "A",
-                        "mensagem": "Olá do cliente A!"
-                    }))
-
-                    resposta = await ws.recv()
-                    print("Resposta de B:", json.loads(resposta))
-                    logs.append(f"Resposta de B: {json.loads(resposta)}")
-
-                    await asyncio.sleep(5)
-
-        except Exception as erro:
-            print("Conexão perdida:", erro)
-            await asyncio.sleep(3)
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    tarefa = asyncio.create_task(comunicar())
-
-    yield
-
-    tarefa.cancel()
-
-    try:
-        await tarefa
-    except asyncio.CancelledError:
-        pass
-
+logs: list[str] = []
 
 app = FastAPI(
-    lifespan=lifespan,
     title="Cliente",
     description="Cliente que se comunica com o servidor",
-    version="0.1.1",
-    )
+    version="0.2.0",
+)
+
+
+@app.get("/")
+@app.post("/enviar")
+async def enviar_mensagem():
+    """Envia uma mensagem ao servidor durante a requisicao HTTP atual."""
+    if not WEBSOCKET_URL:
+        raise HTTPException(
+            status_code=500,
+            detail="WEBSOCKET_URL nao configurada",
+        )
+
+    mensagem = {
+        "origem": "A",
+        "mensagem": "Ola do cliente A!",
+    }
+
+    try:
+        async with connect(WEBSOCKET_URL) as websocket:
+            await websocket.send(json.dumps(mensagem))
+            resposta_bruta = await asyncio.wait_for(websocket.recv(), timeout=10)
+            resposta = json.loads(resposta_bruta)
+
+        logs.append(f"Resposta do servidor: {resposta}")
+
+        return {
+            "status": "mensagem-enviada",
+            "resposta": resposta,
+        }
+    except Exception as erro:
+        logs.append(f"Falha na comunicacao: {erro}")
+        raise HTTPException(
+            status_code=502,
+            detail=f"Falha na comunicacao com o servidor: {erro}",
+        ) from erro
+
 
 @app.get("/status-cliente")
 async def status():
-    return {"status": "Cliente online"}
+    return {"status": "cliente-online"}
+
 
 @app.get("/logs")
 async def get_logs():
-    return {"logs": logs}   
+    return {"logs": logs}

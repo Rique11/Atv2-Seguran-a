@@ -35,7 +35,3 @@ async def websocket_endpoint(websocket: WebSocket):
 
     except WebSocketDisconnect:
         print("Cliente desconectado")
-
-@app.get("/mensagens-recebidas")
-async def get_mensagens():
-    return {"mensagens": mensagens_servidor}
