@@ -26,7 +26,13 @@
       }
     },
     {
-      "source": "/mensagens-recebidas",
+      "source": "/logs-servidor",
+      "destination": {
+        "service": "servidor"
+      }
+    },
+    {
+      "source": "/arquivos-recebidos",
       "destination": {
         "service": "servidor"
       }

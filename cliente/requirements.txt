@@ -1,5 +1,6 @@
-fastapi
-websockets
+fastapi>=0.115
+uvicorn[standard]>=0.30
+websockets>=13.0
+cryptography>=43
+python-multipart>=0.0.9
 python-dotenv
-AES_Python
-galois
