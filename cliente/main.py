@@ -13,6 +13,7 @@ WEBSOCKET_URL = os.getenv("WEBSOCKET_URL")
 logs = []
 
 if not WEBSOCKET_URL:
+    logs.append("WEBSOCKET_URL não definida no .env")
     raise ValueError("WEBSOCKET_URL não definida no .env")
 
 async def comunicar():
