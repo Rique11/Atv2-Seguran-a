@@ -10,6 +10,8 @@ from websockets.asyncio.client import connect
 load_dotenv()
 WEBSOCKET_URL = os.getenv("WEBSOCKET_URL")
 
+logs = []
+
 if not WEBSOCKET_URL:
     raise ValueError("WEBSOCKET_URL não definida no .env")
 
@@ -18,15 +20,16 @@ async def comunicar():
         try:
             async with connect(WEBSOCKET_URL) as ws:
                 print("Conectado ao servidor B!")
-
+                logs.append("Conectado ao servidor B!")
                 while True:
                     await ws.send(json.dumps({
                         "origem": "A",
-                        "mensagem": "Olá do servidor A!"
+                        "mensagem": "Olá do cliente A!"
                     }))
 
                     resposta = await ws.recv()
                     print("Resposta de B:", json.loads(resposta))
+                    logs.append(f"Resposta de B: {json.loads(resposta)}")
 
                     await asyncio.sleep(5)
 
@@ -59,3 +62,7 @@ app = FastAPI(
 @app.get("/status-cliente")
 async def status():
     return {"status": "Cliente online"}
+
+@app.get("/logs")
+async def get_logs():
+    return {"logs": logs}   
