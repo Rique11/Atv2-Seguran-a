@@ -56,6 +56,6 @@ app = FastAPI(
     version="0.1.1",
     )
 
-@app.get("/status")
+@app.get("/status-cliente")
 async def status():
-    return {"status": "Servidor online"}
+    return {"status": "Cliente online"}
