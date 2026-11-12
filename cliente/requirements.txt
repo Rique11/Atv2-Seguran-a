@@ -1,5 +1,6 @@
 fastapi
+uvicorn
 websockets
+cryptography
 python-dotenv
-AES_Python
-galois
+python-multipart
