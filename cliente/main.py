@@ -68,6 +68,6 @@ async def status():
 async def get_logs():
     return {"logs": logs}   
 
-@app.get("conecta-servidor")
+@app.get("/conecta-servidor")
 async def conecta_servidor():
     return await comunicar()
