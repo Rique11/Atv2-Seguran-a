@@ -2,13 +2,21 @@
 import asyncio
 import json
 from contextlib import asynccontextmanager
+import os
 from fastapi import FastAPI
+from flask.cli import load_dotenv
 from websockets.asyncio.client import connect
+
+load_dotenv()
+WEBSOCKET_URL = os.getenv("WEBSOCKET_URL")
+
+if not WEBSOCKET_URL:
+    raise ValueError("WEBSOCKET_URL não definida no .env")
 
 async def comunicar():
     while True:
         try:
-            async with connect("ws://127.0.0.1:8001/ws") as ws:
+            async with connect(WEBSOCKET_URL) as ws:
                 print("Conectado ao servidor B!")
 
                 while True:
